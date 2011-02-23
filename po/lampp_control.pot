@@ -1,0 +1,150 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Christian Hartig <kleinweby@gmx.de>, 2006.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Lampp Control 1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2006-05-13 10:43+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/lampp_control.c:10
+msgid "Hide info window"
+msgstr ""
+
+#: src/lampp_control.c:12
+msgid "Show info window"
+msgstr ""
+
+#: src/lampp_control.c:94 src/other.c:51 src/other.c:58 src/settings.c:86
+#: src/settings.c:97 src/settings.c:384
+msgid ""
+"Action could not be implement.\n"
+"See Console for Details."
+msgstr ""
+
+#: src/lampp_control.c:125
+msgid "runnig"
+msgstr ""
+
+#: src/lampp_control.c:127
+msgid "not runnig"
+msgstr ""
+
+#: src/lampp_control.c:131
+msgid "Can`t open /etc/hostname"
+msgstr ""
+
+#: src/lampp_control.c:209
+msgid "Lampp start"
+msgstr ""
+
+#: src/lampp_control.c:210
+msgid "Lampp stop"
+msgstr ""
+
+#: src/lampp_control.c:211
+msgid "Lampp reload"
+msgstr ""
+
+#: src/lampp_control.c:212
+msgid "Apache start"
+msgstr ""
+
+#: src/lampp_control.c:213
+msgid "Apache stop"
+msgstr ""
+
+#: src/lampp_control.c:214
+msgid "MySql start"
+msgstr ""
+
+#: src/lampp_control.c:215
+msgid "MySql stop"
+msgstr ""
+
+#: src/lampp_control.c:216
+msgid "FTP start"
+msgstr ""
+
+#: src/lampp_control.c:217
+msgid "FTP stop"
+msgstr ""
+
+#: src/lampp_control.c:218 src/settings.c:11
+msgid "Settings"
+msgstr ""
+
+#: src/settings.c:14
+msgid "Xammpside with password protect"
+msgstr ""
+
+#: src/settings.c:15
+msgid "Set new mysql-pw"
+msgstr ""
+
+#: src/settings.c:16 src/settings.c:237
+msgid "PHP Settings"
+msgstr ""
+
+#: src/settings.c:38 src/settings.c:135
+msgid "New Password"
+msgstr ""
+
+#: src/settings.c:38 src/settings.c:135 src/settings.c:237
+msgid "Cancel"
+msgstr ""
+
+#: src/settings.c:41
+msgid "This protect the Xamppsides with a Password."
+msgstr ""
+
+#: src/settings.c:42
+msgid "User:"
+msgstr ""
+
+#: src/settings.c:44 src/settings.c:142
+msgid "Password:"
+msgstr ""
+
+#: src/settings.c:46 src/settings.c:144
+msgid "Again:"
+msgstr ""
+
+#: src/settings.c:68
+msgid "No Username entered."
+msgstr ""
+
+#: src/settings.c:70 src/settings.c:166
+msgid "The passwords do not agree."
+msgstr ""
+
+#: src/settings.c:72 src/settings.c:168
+msgid "No password entered."
+msgstr ""
+
+#: src/settings.c:115
+msgid "Password successfully set."
+msgstr ""
+
+#: src/settings.c:139
+msgid ""
+"If you has not set a root-password(Mysql),\n"
+"then you can empty Old Password."
+msgstr ""
+
+#: src/settings.c:140
+msgid "Old Password:"
+msgstr ""
+
+#: src/settings.c:361
+msgid "Cant open php.ini"
+msgstr ""

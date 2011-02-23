@@ -1,0 +1,29 @@
+Lampp Control is a programm for xampp for linux.
+
+Install
+========
+You need gtk2, the gtk2 Development files, gksu/gksudo, xampp for linux.
+
+Unzip the archiv.
+
+ $ tar -xzvf lampp_control-1.1.tar.gz
+
+Then configure the programm.
+ $ ./configure
+
+If you are using Ubuntu configure the program so.
+ $ ./configure --enable-ubuntu
+
+Then build the programm.
+ $ make
+
+After this. Install the programm as root.
+ # make install
+
+To start the programm write /opt/lampp/lampp_control in a terminal.
+
+Uninstall
+=========
+
+Run as root
+ # /opt/lampp/share/lampp_control/uninstall.sh

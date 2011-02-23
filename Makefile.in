@@ -1,0 +1,24 @@
+INSTALL = @INSTALL@
+
+all: src/lampp_control mo
+	@echo "Use now 'make install'"
+
+src/lampp_control:
+	cd src && make
+
+mo:
+	cd po/ && make
+
+install: src/lampp_control /opt/lampp/ src/logo.gif /opt/lampp/share/lampp_control/ mo src/uninstall.sh
+	$(INSTALL) -m 755 src/lampp_control /opt/lampp/lampp_control
+	$(INSTALL) -m 755 src/logo.gif /opt/lampp/share/lampp_control/logo.gif
+	$(INSTALL) -m 755 src/lampp_control.desktop /usr/share/applications/lampp_control.desktop
+	cd po/ && make install
+	$(INSTALL) -m 755 src/uninstall.sh /opt/lampp/share/lampp_control/uninstall.sh
+
+/opt/lampp/share/lampp_control/:
+	@mkdir /opt/lampp/share/lampp_control/
+
+clean:
+	cd src && make clean
+	cd po && make clean
