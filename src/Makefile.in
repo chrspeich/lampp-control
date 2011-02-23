@@ -1,16 +1,17 @@
 CC = @CC@
-UBUNTU = @UBUNTU@
 CFLAGS = `pkg-config gtk+-2.0 --cflags`
 LIBS = -lpthread `pkg-config gtk+-2.0 --libs`
 
 all: lampp_control
-	@echo "Use now 'make install'"
 
-lampp_control: lampp_control.o settings.o other.o
-	$(CC) -o $@ $^ $(LIBS)
+lampp_control: lampp_control.o settings.o other.o eggtrayicon/eggtrayicon.o vhost.o
+	@echo "[Link] $@: $^"
+	@$(CC) -o $@ $^ $(LIBS) >> /dev/null
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $(UBUNTU) -o $@ $<
+	@echo "[CC] $<"
+	@$(CC) -c $(CFLAGS) -o $@ $< >> /dev/null
 
 clean:
-	rm *.o
+	@rm *.o &> /dev/null || true
+	@rm *~ &> /dev/null || true

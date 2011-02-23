@@ -1,24 +1,32 @@
 INSTALL = @INSTALL@
 
-all: src/lampp_control mo
+all: po/de.mo src/lampp_control
 	@echo "Use now 'make install'"
 
 src/lampp_control:
-	cd src && make
+	@cd src && make
 
-mo:
-	cd po/ && make
+po/de.mo:
+	@cd po/ && make
 
-install: src/lampp_control /opt/lampp/ src/logo.gif /opt/lampp/share/lampp_control/ mo src/uninstall.sh
+install: src/lampp_control /opt/lampp/ src/logo.gif src/uninstall.sh
+	$(INSTALL) -d /opt/lampp/share/lampp_control/
 	$(INSTALL) -m 755 src/lampp_control /opt/lampp/lampp_control
 	$(INSTALL) -m 755 src/logo.gif /opt/lampp/share/lampp_control/logo.gif
-	$(INSTALL) -m 755 src/lampp_control.desktop /usr/share/applications/lampp_control.desktop
-	cd po/ && make install
+	@make -C po/ install
 	$(INSTALL) -m 755 src/uninstall.sh /opt/lampp/share/lampp_control/uninstall.sh
+	$(INSTALL) -d /opt/lampp/etc/vhost_available/
+	$(INSTALL) -d /opt/lampp/etc/vhost_enable/
+	$(INSTALL) -m 755 src/lampp_control-vhost.conf /opt/lampp/etc/lampp_control-vhost.conf
+	@grep -q "Include etc/lampp_control-vhost.conf" /opt/lampp/etc/httpd.conf || echo "Include etc/lampp_control-vhost.conf" >> /opt/lampp/etc/httpd.conf
 
-/opt/lampp/share/lampp_control/:
-	@mkdir /opt/lampp/share/lampp_control/
+
+/opt/lampp/:
+	@echo "Xampp for Linux is not installed!"
+	@echo "Aborting ..."
+	exit 1;
 
 clean:
-	cd src && make clean
-	cd po && make clean
+	@make -C src/ clean
+	@make -C po/ clean
+	@rm *~ &>/dev/null || true

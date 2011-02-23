@@ -3,25 +3,33 @@
 void xampp_pw(void);
 void mysql_pw(void);
 void phpini(void);
+void vhosts(void);
+void ddclient(void);
 
 void einstellungen(void) {
-
 	GtkTable *table;
-	GtkButton *pw_xampp, *pw_mysql, *phpini_;
-	einstellungen_win = g_object_new(GTK_TYPE_WINDOW, "title", _("Settings"), "default-width", 284, "default-height", 200, "resizable",  FALSE, "window-position", GTK_WIN_POS_CENTER, "border-width", 5, "icon", main_data.pic, "skip-pager-hint", TRUE, "skip-taskbar-hint", TRUE, NULL);
-	table = g_object_new(GTK_TYPE_TABLE, "n-columns", 4, "n-rows",  1, NULL);
+	GtkButton *pw_xampp, *pw_mysql, *phpini_, *vhost, *ddclient_;
+	einstellungen_win = g_object_new(GTK_TYPE_WINDOW, "title", _("Settings"), "default-width", 284, "default-height", 200, "resizable",  FALSE, "window-position", GTK_WIN_POS_CENTER_ON_PARENT, "border-width", 5, "icon", main_data.pic, "skip-pager-hint", TRUE, "skip-taskbar-hint", TRUE, NULL);
+	gtk_window_set_transient_for(einstellungen_win, main_data.win);
+	table = g_object_new(GTK_TYPE_TABLE, "n-columns", 5, "n-rows",  1, NULL);
 
-	pw_xampp = g_object_new(GTK_TYPE_BUTTON, "label", _("Xammpside with password protect"), NULL);
-	pw_mysql = g_object_new(GTK_TYPE_BUTTON, "label", _("Set new mysql-pw"), NULL);
+	pw_xampp = g_object_new(GTK_TYPE_BUTTON, "label", _("Protect xamppside with password"), NULL);
+	pw_mysql = g_object_new(GTK_TYPE_BUTTON, "label", _("Set new MySQL-pw"), NULL);
 	phpini_ = g_object_new(GTK_TYPE_BUTTON, "label", _("PHP Settings"), NULL);
-
+	vhost = g_object_new(GTK_TYPE_BUTTON, "label", _("Vhost"), NULL);
+	ddclient_ = g_object_new(GTK_TYPE_BUTTON, "label", _("Automatic DNS update"), NULL);
+	
 	g_signal_connect(pw_xampp, "clicked", G_CALLBACK(xampp_pw), NULL);
 	g_signal_connect(pw_mysql, "clicked", G_CALLBACK(mysql_pw), NULL);
 	g_signal_connect(phpini_, "clicked", G_CALLBACK(phpini), NULL);
+	g_signal_connect(vhost, "clicked", G_CALLBACK(vhosts), NULL);
+	g_signal_connect(ddclient_, "clicked", G_CALLBACK(ddclient), NULL);
 
 	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(pw_xampp), 0, 1, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
 	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(pw_mysql), 0, 1, 1, 2, GTK_FILL, GTK_FILL, 0, 0);
 	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(phpini_), 0, 1, 2, 3, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(ddclient_), 0, 1, 3, 4, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(vhost), 0, 1, 4, 5, GTK_FILL, GTK_FILL, 0, 0);
 	gtk_container_add(GTK_CONTAINER(einstellungen_win), GTK_WIDGET(table));
 	gtk_widget_show_all(GTK_WIDGET(einstellungen_win));
 }
@@ -32,8 +40,9 @@ void xampp_pw(void) {
 	GtkButton *pw, *wpw, *user;
 	GtkWidget *xdialog;
 	gchar *tmp, *tmp2, *tmp5;
-	gint result;
+	gint result, ok;
 	FILE *file;
+	char puffer[PIPE_BUF * 8], *tmp3, *tmp4;
 
 	xdialog = gtk_dialog_new_with_buttons(_("New Password"), einstellungen_win, GTK_DIALOG_DESTROY_WITH_PARENT, "OK", GTK_RESPONSE_ACCEPT, _("Cancel"), GTK_RESPONSE_REJECT, NULL);
 	table = g_object_new(GTK_TYPE_TABLE, "n-columns", 5, "n-rows",  2, NULL);
@@ -56,7 +65,30 @@ void xampp_pw(void) {
 	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(xdialog)->vbox), GTK_WIDGET(table));
 	gtk_widget_show_all(xdialog);
 
-	result = gtk_dialog_run(GTK_DIALOG(xdialog));
+	ok = 0;
+	while(ok != 1) {
+		ok = 1;
+		result = gtk_dialog_run(GTK_DIALOG(xdialog));
+		if(result == GTK_RESPONSE_ACCEPT) {
+			g_object_get(pw, "text", &tmp, NULL);
+			g_object_get(wpw, "text", &tmp2, NULL);
+			g_object_get(user, "text", &tmp5, NULL);
+
+			if(strcmp(tmp5, "") == 0) {
+				my_info(_("Please enter a Username!"), einstellungen_win);
+				ok = 0;
+				continue;
+			} else if(strcmp(tmp, "") == 0) {
+				my_info(_("Please enter a Password!"), einstellungen_win);
+				ok = 0;
+				continue;
+			} else if(strcmp(tmp, tmp2) != 0) {
+				my_info(_("The passwords do not agree."), einstellungen_win);
+				ok = 0;
+				continue;
+			}
+		}
+	}
 
 	switch(result) {
 	case GTK_RESPONSE_ACCEPT:
@@ -64,56 +96,44 @@ void xampp_pw(void) {
 		g_object_get(wpw, "text", &tmp2, NULL);
 		g_object_get(user, "text", &tmp5, NULL);
 		gtk_widget_destroy(xdialog);
-		if(strcmp(tmp5, "") == 0) {
-			my_info(_("No Username entered."), einstellungen_win);
-		} else if(strcmp(tmp, tmp2) != 0) {
-			my_info(_("The passwords do not agree."), einstellungen_win);
-		} else if(strcmp(tmp, "") == 0) {
-			my_info(_("No password entered."), einstellungen_win);
-		} else {
-			FILE *file;
-			char puffer[PIPE_BUF * 8], *tmp3, *tmp4;
-			tmp3 = (char *) malloc(1024);
-			snprintf(tmp3, strlen("/opt/lampp/share/lampp/crypt ") + strlen(tmp) + 1, "%s%s", "/opt/lampp/share/lampp/crypt ", tmp);
-			file = popen (tmp3, "r");
-			if (file == NULL)
-				perror("popen");
-			fgets(puffer, PIPE_BUF * 8, file);
-			tmp4= (char *) malloc(1024);
-			puffer[strlen(puffer)-1] = '\0';
-			file = fopen("/opt/lampp/lib/xampp.users", "w");
-			if(file == NULL) {
-				my_error(_("Action could not be implement.\nSee Console for Details."), einstellungen_win);
-				perror("fopen");
-				return;
-			}
-			snprintf(tmp4, strlen(tmp5) + strlen(":") + strlen(puffer) + 1, "%s%s%s", tmp5, ":",  puffer);
-			fputs(tmp4, file);
-			free(tmp3);
-			fclose(file);
-
-			file = fopen("/opt/lampp/htdocs/xampp/.htaccess", "w");
-			if(file == NULL) {
-				my_error(_("Action could not be implement.\nSee Console for Details."), einstellungen_win);
-				perror("fopen");
-				return;
-			}
-			fputs("AuthName \"xampp user\"\n", file);
-			fputs("AuthType Basic\n", file);
-			fputs("AuthUserFile /opt/lampp/lib/xampp.users\n", file);
-			fputs("require valid-user\n", file);
-			fclose(file);
-
-			copyfile("/opt/lampp/htdocs/xampp/.htaccess", "/opt/lampp/htdocs/webalizer/.htaccess");
-			copyfile("/opt/lampp/htdocs/xampp/.htaccess", "/opt/lampp/phpmyadmin/.htaccess");
-			copyfile("/opt/lampp/htdocs/xampp/.htaccess", "/opt/lampp/phpsqliteadmin/.htaccess");
-			chmod("/opt/lampp/lib/xampp.users", 644);
-			chmod("/opt/lampp/htdocs/xampp/.htaccess", 644);
-			chmod("/opt/lampp/htdocs/webalizer/.htaccess", 644);
-			chmod("/opt/lampp/phpmyadmin/.htaccess", 644);
-			chmod("/opt/lampp/phpsqliteadmin/.htaccess", 644);
-			my_info(_("Password successfully set."), einstellungen_win);
+		tmp3 = (char *) malloc(1024);
+		snprintf(tmp3, strlen("/opt/lampp/share/lampp/crypt ") + strlen(tmp) + 1, "/opt/lampp/share/lampp/crypt %s", tmp);
+		file = popen (tmp3, "r");
+		if (file == NULL)
+			my_perror("popen");
+		fgets(puffer, PIPE_BUF * 8, file);
+		tmp4= (char *) malloc(1024);
+		puffer[strlen(puffer)-1] = '\0';
+		file = fopen("/opt/lampp/lib/xampp.users", "w");
+		if(file == NULL) {
+			my_perror("fopen");
+			return;
 		}
+		snprintf(tmp4, strlen(tmp5) + strlen(":") + strlen(puffer) + 1, "%s:%s", tmp5, puffer);
+		fputs(tmp4, file);
+		free(tmp3);
+		fclose(file);
+
+		file = fopen("/opt/lampp/htdocs/xampp/.htaccess", "w");
+		if(file == NULL) {
+			my_perror("fopen");
+			return;
+		}
+		fputs("AuthName \"xampp user\"\n", file);
+		fputs("AuthType Basic\n", file);
+		fputs("AuthUserFile /opt/lampp/lib/xampp.users\n", file);
+		fputs("require valid-user\n", file);
+		fclose(file);
+
+		copyfile("/opt/lampp/htdocs/xampp/.htaccess", "/opt/lampp/htdocs/webalizer/.htaccess");
+		copyfile("/opt/lampp/htdocs/xampp/.htaccess", "/opt/lampp/phpmyadmin/.htaccess");
+		copyfile("/opt/lampp/htdocs/xampp/.htaccess", "/opt/lampp/phpsqliteadmin/.htaccess");
+		chmod("/opt/lampp/lib/xampp.users", 644);
+		chmod("/opt/lampp/htdocs/xampp/.htaccess", 644);
+		chmod("/opt/lampp/htdocs/webalizer/.htaccess", 644);
+		chmod("/opt/lampp/phpmyadmin/.htaccess", 644);
+		chmod("/opt/lampp/phpsqliteadmin/.htaccess", 644);
+		my_info(_("Password successfully set."), einstellungen_win);
 		break;
 	case GTK_RESPONSE_REJECT:
 		gtk_widget_destroy(xdialog);
@@ -131,12 +151,16 @@ void mysql_pw(void) {
 	GtkWidget *xdialog;
 	gint result;
 	gchar *tmp, *tmp2, *tmp3;
+	int ok;
+	char *tmp4, *tmp5, *tmp6;
+	FILE *file;
+	char puffer[PIPE_BUF * 8];
 
 	xdialog = gtk_dialog_new_with_buttons(_("New Password"), einstellungen_win, GTK_DIALOG_DESTROY_WITH_PARENT, "OK", GTK_RESPONSE_ACCEPT, _("Cancel"), GTK_RESPONSE_REJECT, NULL);
 
 	table = g_object_new(GTK_TYPE_TABLE, "n-columns", 5, "n-rows",  2, NULL);
  
-	hinweis = g_object_new(GTK_TYPE_LABEL, "label", _("If you has not set a root-password(Mysql),\nthen you can empty Old Password."), NULL);
+	hinweis = g_object_new(GTK_TYPE_LABEL, "label", _(" If you haven't set a root password in Mysql,\nyou can leave the Old Password blank."), NULL);
 	old_pw1 = g_object_new(GTK_TYPE_LABEL, "label", _("Old Password:"), NULL);
 	old_pw = g_object_new(GTK_TYPE_ENTRY, "text", "", "max-length", 0, "visibility", FALSE, NULL);
 	pw1 = g_object_new(GTK_TYPE_LABEL, "label", _("Password:"), NULL);
@@ -154,7 +178,25 @@ void mysql_pw(void) {
 	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(xdialog)->vbox), GTK_WIDGET(table));
 	gtk_widget_show_all(xdialog);
 
-	result = gtk_dialog_run(GTK_DIALOG(xdialog));
+	ok = 0;
+	while(ok != 1) {
+		ok = 1;
+		result = gtk_dialog_run(GTK_DIALOG(xdialog));
+		if(result == GTK_RESPONSE_ACCEPT) {
+			g_object_get(pw, "text", &tmp, NULL);
+			g_object_get(wpw, "text", &tmp2, NULL);
+			if(strcmp(tmp, "") == 0) {
+				my_info(_("Please enter a Password!"), GTK_WINDOW(xdialog));
+				ok =  0;
+				continue;
+			}
+			if(strcmp(tmp,tmp2) != 0) {
+				my_info(_("The passwords do not agree."), GTK_WINDOW(xdialog));
+				ok = 0;
+				continue;
+			}
+		}
+	}
 
 	switch(result) {
 	case GTK_RESPONSE_ACCEPT:
@@ -162,38 +204,29 @@ void mysql_pw(void) {
 		g_object_get(wpw, "text", &tmp2, NULL);
 		g_object_get(old_pw, "text", &tmp3, NULL);
 		gtk_widget_destroy(xdialog);
-		if(strcmp(tmp, tmp2) != 0) {
-			my_info(_("The passwords do not agree."), einstellungen_win);
-		} else if(strcmp(tmp, "") == 0) {
-			my_info(_("No password entered."), einstellungen_win);
+
+		if(strcmp(tmp3, "") == 0) {
+			tmp4 = malloc(strlen("echo \"update user set Password=password('') where User = 'root';\" | /opt/lampp/bin/mysql -uroot mysql") + strlen(tmp) + 1);
+			snprintf(tmp4, strlen("echo \"update user set Password=password('') where User = 'root';\" | /opt/lampp/bin/mysql -uroot mysql") + strlen(tmp) + 1, "echo \"update user set Password=password('%s') where User = 'root';\" | /opt/lampp/bin/mysql -uroot mysql", tmp);
+
+			tmp5 = malloc(strlen("gksudo /opt/lampp/bin/mysqladmin reload"));
+			tmp5 = "gksudo /opt/lampp/bin/mysqladmin reload";
 		} else {
-			char *tmp4, *tmp5, *tmp6;
-			FILE *file;
-			char puffer[PIPE_BUF * 8];
-			if(strcmp(tmp3, "") == 0) {
-				tmp4 = malloc(1024);
-				snprintf(tmp4, strlen("echo \"update user set Password=password('") + strlen(tmp) + strlen("') where User = 'root';\" | /opt/lampp/bin/mysql -uroot mysql") + 1, "%s%s%s", "echo \"update user set Password=password('", tmp, "') where User = 'root';\" | /opt/lampp/bin/mysql -uroot mysql");
+			tmp4 = malloc(strlen("echo \"update user set Password=password('') where User = 'root';\" | /opt/lampp/bin/mysql -uroot -p mysql") + strlen(tmp) + strlen(tmp3) + 1);
+			snprintf(tmp4, strlen("echo \"update user set Password=password('') where User = 'root';\" | /opt/lampp/bin/mysql -uroot -p mysql") + strlen(tmp) + strlen(tmp3) + 1, "echo \"update user set Password=password('%s') where User = 'root';\" | /opt/lampp/bin/mysql -uroot -p%s mysql", tmp, tmp3);
 
-				tmp5 = malloc(strlen("gksudo /opt/lampp/bin/mysqladmin reload"));
-				tmp5 = "gksudo /opt/lampp/bin/mysqladmin reload";
-			} else {
-				tmp4 = malloc(1024);
-				snprintf(tmp4, strlen("echo \"update user set Password=password('") + strlen(tmp) + strlen("') where User = 'root';\" | /opt/lampp/bin/mysql -uroot -p") + strlen(tmp3) + strlen(" mysql") + 1, "%s%s%s%s%s", "echo \"update user set Password=password('", tmp, "') where User = 'root';\" | /opt/lampp/bin/mysql -uroot -p", tmp3, " mysql");
-
-				tmp5 = malloc(1024);
-				snprintf(tmp5, strlen("/opt/lampp/bin/mysqladmin -p") + strlen(tmp3) + strlen(" reload") + 1, "%s%s%s", "/opt/lampp/bin/mysqladmin -p", tmp3, " reload");
-			}
-			if ((file = popen (tmp4, "r")) == NULL)
-				perror("popen");
-
-			tmp6 = (char *) malloc(2048);
-			while(fgets(puffer, 2048, file) != NULL) {
-				strcat(tmp6, uft8(puffer));
-			}
-			system(tmp5);
-
-			free(tmp4);
+			tmp5 = malloc(1024);
+			snprintf(tmp5, strlen("/opt/lampp/bin/mysqladmin -p reload") + strlen(tmp3) + 1, "/opt/lampp/bin/mysqladmin -p%s reload", tmp3);
 		}
+		if ((file = popen (tmp4, "r")) == NULL)
+			my_perror("popen");
+		tmp6 = (char *) malloc(2048);
+		while(fgets(puffer, 2048, file) != NULL) {
+			strcat(tmp6, uft8(puffer));
+		}
+		system(tmp5);
+
+		free(tmp4);
 		break;
 	case GTK_RESPONSE_REJECT:
 		gtk_widget_destroy(xdialog);
@@ -227,9 +260,8 @@ void phpini(void) {
 	GtkWidget *xdialog;
 	gint result;
 	GtkTable *table;
-	gpointer daten;
-	GtkLabel *short_open_tag_, *asp_tags_, *max_execution_time_, *memory_limit_, *display_errors_, *log_errors_, *post_max_size_, *magic_quotes_gpc_, *file_uploads_, *upload_max_filesize_;
-	gchar *short_open_tag, *asp_tags, *max_execution_time, *memory_limit, *display_errors, *log_errors, *post_max_size, *magic_quotes_gpc, *file_uploads, *upload_max_filesize;
+	GtkLabel *short_open_tag_, *asp_tags_, *max_execution_time_, *memory_limit_, *display_errors_, *log_errors_, *post_max_size_, *magic_quotes_gpc_, *file_uploads_;
+	gchar *short_open_tag, *asp_tags, *max_execution_time, *memory_limit, *display_errors, *log_errors, *post_max_size, *magic_quotes_gpc, *file_uploads;
 	char *tmp;
 	FILE *file;
 	int file1;
@@ -302,7 +334,6 @@ void phpini(void) {
 
 	FILE *fp = fopen("/opt/lampp/etc/php.ini", "r");
 	char var[512], value[512], line[512], tmp1[512], tmp2[512];
-	int i, i2;
 	if (fp) {
 		while (fgets(line, sizeof(line), fp)) {
 			if (sscanf(line, "%[^ \t=]%*[\t ]=%*[\t ]%[^\n]", var, value) == 2) {
@@ -358,7 +389,7 @@ void phpini(void) {
 		}
 		fclose(fp);
 	} else {
-		my_error(_("Cant open php.ini"), einstellungen_win);
+		my_perror("fopen");
 		return;
 	}
 
@@ -381,21 +412,14 @@ void phpini(void) {
 
 		file = fopen("/opt/lampp/etc/php.ini", "r");
 		if(file == NULL) {
-			my_error(_("Action could not be implement.\nSee Console for Details."), einstellungen_win);
-			perror("fopen");
+			my_perror("fopen");
 			return;
 		}
-		/*file[1] = fopen("/opt/lampp/share/lampp_control/tmp.conf", "w+");
-		if(file[1] == NULL) {
-			my_error(_("Action could not be implement.\nSee Console for Details."), einstellungen_win);
-			perror("fopen");
-			fclose(file[0]);
-			return;
-		}*/
 
 		file1 = open("/opt/lampp/share/lampp_control/tmp.conf", O_WRONLY | O_CREAT, 644);
-		if(file == -1) {
-			perror("open");
+		if(file1 == -1) {
+			my_perror("open");
+			return;
 		}
 		tmp = (char *) malloc(1024);
 		while (fgets(line, sizeof(line), file)) {
@@ -445,10 +469,10 @@ void phpini(void) {
 		close(file1);
 
 		if(rename("/opt/lampp/share/lampp_control/tmp.conf", "/opt/lampp/etc/php.ini") == -1) {
-			perror("rename");
+			my_perror("rename");
 		}
-		
-		system("/opt/lampp/lampp reloadapache");
+
+		lampp(NULL, "reload");		
 		break;
 	case GTK_RESPONSE_REJECT:
 		gtk_widget_destroy(xdialog);
@@ -457,4 +481,191 @@ void phpini(void) {
 		gtk_widget_destroy(xdialog);
 		break;
 	}
+}
+
+void ddclient(void) {
+	GtkWidget *xdialog, *proto;
+	GtkTable *table;
+	GtkLabel *l_host, *l_user, *l_pass, *l_proto, *l_server;
+	GtkTreePath *path;
+	GtkButton *host, *user, *pass, *server;
+	int result, i, file1, ok;
+	gchar *tmp2;
+	char *host_tmp;
+
+	xdialog = gtk_dialog_new_with_buttons(_("Automatic DNS update"), einstellungen_win, GTK_DIALOG_DESTROY_WITH_PARENT, "OK", GTK_RESPONSE_ACCEPT, _("Cancel"), GTK_RESPONSE_REJECT, NULL);
+	table = g_object_new(GTK_TYPE_TABLE, "n-columns", 3, "n-rows", 2, NULL);
+
+	l_proto = g_object_new(GTK_TYPE_LABEL, "label", _("Protocol:"), NULL);
+	proto = gtk_combo_box_new_text();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(proto), "DynXampp");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(proto), "DynDns");
+
+	l_server = g_object_new(GTK_TYPE_LABEL, "label", _("Server:"), NULL);
+	server = g_object_new(GTK_TYPE_ENTRY, "text", "", "max-length", 0, NULL);
+	l_host = g_object_new(GTK_TYPE_LABEL, "label", _("Host:"), NULL);
+	host = g_object_new(GTK_TYPE_ENTRY, "text", "", "max-length", 0, NULL);
+	l_user = g_object_new(GTK_TYPE_LABEL, "label", _("User:"), NULL);
+	user = g_object_new(GTK_TYPE_ENTRY, "text", "", "max-length", 0, NULL);
+	l_pass = g_object_new(GTK_TYPE_LABEL, "label", _("Password:"), NULL);
+	pass = g_object_new(GTK_TYPE_ENTRY, "text", "", "max-length", 0, NULL);
+
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(l_proto), 0, 1, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(proto), 1, 2, 0, 1, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(l_server), 0, 1, 1, 2, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(server), 1, 2, 1, 2, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(l_host), 0, 1, 2, 3, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(host), 1, 2, 2, 3, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(l_user), 0, 1, 3, 4, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(user), 1, 2, 3, 4, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(l_pass), 0, 1, 4, 5, GTK_FILL, GTK_FILL, 0, 0);
+	gtk_table_attach(GTK_TABLE(table), GTK_WIDGET(pass), 1, 2, 4, 5, GTK_FILL, GTK_FILL, 0, 0);
+	
+	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(xdialog)->vbox), GTK_WIDGET(table));
+	
+	FILE *fp = fopen("/opt/lampp/etc/ddclient/ddclient.conf", "r");
+	char var[512], value[512], line[512], value2[512];
+	if (fp) {
+		while (fgets(line, sizeof(line), fp)) {
+			if (sscanf(line, "%[^ \t=]%s[\t ]=%s[\t ]%[^\n]", var, value2) == 2) {
+				for(i=0; i < (int)strlen(value2); i++) {
+					value[i] = value2[i+1];
+				}
+				
+				if(strcmp(var, "login") == 0) {
+					g_object_set(user, "text", uft8(value), NULL);
+				} else if(strcmp(var, "password") == 0) {
+					g_object_set(pass, "text", uft8(value), NULL);
+				} else if(strcmp(var, "server") == 0) {
+					g_object_set(server, "text", uft8(value), NULL);
+				} else if(strcmp(var, "protocol") == 0) {
+					if(strcmp(value, "dynxampp") == 0) {
+						gtk_combo_box_set_active(GTK_COMBO_BOX(proto), 0);
+					} else if(strcmp(value, "dyndns2") == 0) {
+						gtk_combo_box_set_active(GTK_COMBO_BOX(proto), 1);
+					}
+				}
+			}
+		}
+		host_tmp = malloc(strlen(line) + 1);
+		strcpy(host_tmp, line);
+		line[strlen(line) - 1] = '\0';
+		g_object_set(host, "text", uft8(line), NULL);
+		fclose(fp);
+	} else {
+		my_perror("fopen");
+	}
+	gtk_widget_show_all(xdialog);
+
+	ok = 0;
+	i = 0;
+	while(ok != 1) {
+		ok = 1;
+		result = gtk_dialog_run(GTK_DIALOG(xdialog));
+		if(result == GTK_RESPONSE_ACCEPT) {
+			i = gtk_combo_box_get_active(GTK_COMBO_BOX(proto));
+			if(i == -1) {
+				my_info(_("Please select a Protocol!"), GTK_WINDOW(xdialog));
+				ok = 0;
+				continue;
+			}
+			g_object_get(server, "text", &tmp2, NULL);
+			if(strcmp(tmp2, "") == 0) {
+				my_info(_("Please enter a Server!"), GTK_WINDOW(xdialog));
+				ok = 0;
+				continue;
+			}
+			g_object_get(host, "text", &tmp2, NULL);
+			if(strcmp(tmp2, "") == 0) {
+				my_info(_("Please enter a Host!"), GTK_WINDOW(xdialog));
+				ok = 0;
+				continue;
+			}
+			g_object_get(user, "text", &tmp2, NULL);
+			if(strcmp(tmp2, "") == 0) {
+				my_info(_("Please enter a User!"), GTK_WINDOW(xdialog));
+				ok = 0;
+				continue;
+			}
+			g_object_get(pass, "text", &tmp2, NULL);
+			if(strcmp(tmp2, "") == 0) {
+				my_info(_("Please enter a Password!"), GTK_WINDOW(xdialog));
+				ok =  0;
+				continue;
+			}
+		}
+	}
+
+	switch(result) {
+	case GTK_RESPONSE_ACCEPT:
+		fp = fopen("/opt/lampp/etc/ddclient/ddclient.conf", "r");
+		file1 = open("/opt/lampp/share/lampp_control/tmp.conf", O_WRONLY | O_CREAT, 644);
+		if(file1 == -1) {
+			my_perror("open");
+			return;
+		}
+		char *tmp = malloc(1024);
+		int tmpi;
+		if(fp) {
+			while (fgets(line, sizeof(line), fp)) {
+				if (sscanf(line, "%[^ \t=]%s[\t ]=%s[\t ]%[^\n]", var, value2) == 2) {
+					if(strcmp(var, "login") == 0) {
+						g_object_get(user, "text", &tmp2, NULL);
+						snprintf(tmp, strlen("login=\n") + strlen(tmp2) + 1, "login=%s\n", tmp2);
+						write(file1, tmp, strlen(tmp));
+					} else if(strcmp(var, "password") == 0) {
+						g_object_get(pass, "text", &tmp2, NULL);
+						snprintf(tmp, strlen("password=\n") + strlen(tmp2) + 1, "password=%s\n", tmp2);
+						write(file1, tmp, strlen(tmp));
+					} else if(strcmp(var, "server") == 0) {
+						g_object_get(server, "text", &tmp2, NULL);
+						snprintf(tmp, strlen("server=\n") + strlen(tmp2) + 1, "server=%s\n", tmp2);
+						write(file1, tmp, strlen(tmp));
+					} else if(strcmp(var, "protocol") == 0) {
+						tmpi = gtk_combo_box_get_active(GTK_COMBO_BOX(proto));
+						if(tmpi == 0) {
+							write(file1, "protocol=dynxampp\n", strlen("protocol=dynxampp\n"));
+						} else if(tmpi == 1) {
+							write(file1, "protocol=dyndns2\n", strlen("protocol=dyndns2\n"));
+						}
+					} else {
+						write(file1, line, strlen(line));
+					}					
+				} else if(strcmp(host_tmp, "") != 0) {
+					if(strcmp(line, host_tmp) == 0) {
+						g_object_get(host, "text", &tmp2, NULL);
+						snprintf(tmp, strlen("\n") + strlen(tmp2) + 1, "%s\n", tmp2);
+						write(file1, tmp, strlen(tmp));
+						break;
+					}
+				} else {
+					write(file1, line, strlen(line));
+				}
+			}
+			if(strcmp(host_tmp, "") == 0) {
+				g_object_get(host, "text", &tmp2, NULL);
+				snprintf(tmp, strlen("\n") + strlen(tmp2) + 1, "%s\n", tmp2);
+				write(file1, tmp, strlen(tmp));
+			}
+			
+			close(file1);
+			fclose(fp);
+
+			if(rename("/opt/lampp/share/lampp_control/tmp.conf", "/opt/lampp/etc/ddclient/ddclient.conf") == -1) {
+				my_perror("rename");
+			}
+			chmod("/opt/lampp/etc/ddclient/ddclient.conf", 600);
+			lampp(NULL, "restartddclient");
+		} else {
+			my_perror("fopen");
+		}
+		break;
+	case GTK_RESPONSE_REJECT:
+		break;
+	case GTK_RESPONSE_DELETE_EVENT:
+		break;
+	}
+
+	gtk_widget_destroy(xdialog);
+	return;
 }

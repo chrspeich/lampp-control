@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Christian Hartig <kleinweby@gmx.de>, 2006.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Lampp Control 1.1\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-13 10:43+0200\n"
+"POT-Creation-Date: 2006-10-11 21:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,135 +16,255 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/lampp_control.c:10
-msgid "Hide info window"
-msgstr ""
-
-#: src/lampp_control.c:12
-msgid "Show info window"
-msgstr ""
-
-#: src/lampp_control.c:94 src/other.c:51 src/other.c:58 src/settings.c:86
-#: src/settings.c:97 src/settings.c:384
-msgid ""
-"Action could not be implement.\n"
-"See Console for Details."
-msgstr ""
-
-#: src/lampp_control.c:125
+#: src/lampp_control.c:111
 msgid "runnig"
 msgstr ""
 
-#: src/lampp_control.c:127
+#: src/lampp_control.c:113
 msgid "not runnig"
 msgstr ""
 
-#: src/lampp_control.c:131
-msgid "Can`t open /etc/hostname"
+#: src/lampp_control.c:117
+msgid "Can't open /etc/hostname"
 msgstr ""
 
-#: src/lampp_control.c:209
-msgid "Lampp start"
+#: src/lampp_control.c:267
+msgid "Can't dedect the XAMPP version!"
 msgstr ""
 
-#: src/lampp_control.c:210
-msgid "Lampp stop"
+#: src/lampp_control.c:273
+msgid "Lampp Control dosn't support your Xampp version."
 msgstr ""
 
-#: src/lampp_control.c:211
-msgid "Lampp reload"
+#: src/lampp_control.c:277 src/lampp_control.c:278
+#, c-format
+msgid ""
+"<span font_desc=\"14\" foreground=\"blue\">Lampp Control %s</span>\n"
+"<span font_desc=\"13\">for XAMPP %s</span>"
 msgstr ""
 
-#: src/lampp_control.c:212
-msgid "Apache start"
+#: src/lampp_control.c:283
+msgid "<b>Modules</b>"
 msgstr ""
 
-#: src/lampp_control.c:213
-msgid "Apache stop"
-msgstr ""
-
-#: src/lampp_control.c:214
-msgid "MySql start"
-msgstr ""
-
-#: src/lampp_control.c:215
-msgid "MySql stop"
-msgstr ""
-
-#: src/lampp_control.c:216
-msgid "FTP start"
-msgstr ""
-
-#: src/lampp_control.c:217
-msgid "FTP stop"
-msgstr ""
-
-#: src/lampp_control.c:218 src/settings.c:11
+#: src/lampp_control.c:286 src/settings.c:12
 msgid "Settings"
 msgstr ""
 
-#: src/settings.c:14
-msgid "Xammpside with password protect"
+#: src/lampp_control.c:287 src/other.c:80
+msgid "LAMPP start"
 msgstr ""
 
-#: src/settings.c:15
-msgid "Set new mysql-pw"
+#: src/lampp_control.c:288 src/other.c:84
+msgid "LAMPP stop"
 msgstr ""
 
-#: src/settings.c:16 src/settings.c:237
+#: src/lampp_control.c:289 src/other.c:88
+msgid "LAMPP reload"
+msgstr ""
+
+#: src/lampp_control.c:293
+msgid "Apache"
+msgstr ""
+
+#: src/lampp_control.c:294 src/lampp_control.c:300 src/lampp_control.c:306
+#: src/lampp_control.c:312
+msgid "<span foreground=\"yellow\">Unkown</span>"
+msgstr ""
+
+#: src/lampp_control.c:295 src/lampp_control.c:301 src/lampp_control.c:307
+msgid "Start"
+msgstr ""
+
+#: src/lampp_control.c:296 src/lampp_control.c:302 src/lampp_control.c:308
+msgid "Stop"
+msgstr ""
+
+#: src/lampp_control.c:299
+msgid "MySQL"
+msgstr ""
+
+#: src/lampp_control.c:305
+msgid "FTP"
+msgstr ""
+
+#: src/lampp_control.c:311
+msgid "PHP"
+msgstr ""
+
+#: src/lampp_control.c:313
+msgid "PHP 4"
+msgstr ""
+
+#: src/lampp_control.c:314
+msgid "PHP 5"
+msgstr ""
+
+#: src/other.c:92 src/vhost.c:392
+msgid "Close"
+msgstr ""
+
+#: src/other.c:126
+msgid "Cant create trayicon"
+msgstr ""
+
+#: src/settings.c:16
+msgid "Protect xamppside with password"
+msgstr ""
+
+#: src/settings.c:17
+msgid "Set new MySQL-pw"
+msgstr ""
+
+#: src/settings.c:18 src/settings.c:269
 msgid "PHP Settings"
 msgstr ""
 
-#: src/settings.c:38 src/settings.c:135
+#: src/settings.c:19 src/vhost.c:392
+msgid "Vhost"
+msgstr ""
+
+#: src/settings.c:20 src/settings.c:496
+msgid "Automatic DNS update"
+msgstr ""
+
+#: src/settings.c:47 src/settings.c:159
 msgid "New Password"
 msgstr ""
 
-#: src/settings.c:38 src/settings.c:135 src/settings.c:237
+#: src/settings.c:47 src/settings.c:159 src/settings.c:269 src/settings.c:496
+#: src/vhost.c:246 src/vhost.c:248
 msgid "Cancel"
 msgstr ""
 
-#: src/settings.c:41
+#: src/settings.c:50
 msgid "This protect the Xamppsides with a Password."
 msgstr ""
 
-#: src/settings.c:42
+#: src/settings.c:51 src/settings.c:508
 msgid "User:"
 msgstr ""
 
-#: src/settings.c:44 src/settings.c:142
+#: src/settings.c:53 src/settings.c:166 src/settings.c:510
 msgid "Password:"
 msgstr ""
 
-#: src/settings.c:46 src/settings.c:144
+#: src/settings.c:55 src/settings.c:168
 msgid "Again:"
 msgstr ""
 
-#: src/settings.c:68
-msgid "No Username entered."
+#: src/settings.c:78
+msgid "Please enter a Username!"
 msgstr ""
 
-#: src/settings.c:70 src/settings.c:166
+#: src/settings.c:82 src/settings.c:189 src/settings.c:592
+msgid "Please enter a Password!"
+msgstr ""
+
+#: src/settings.c:86 src/settings.c:194
 msgid "The passwords do not agree."
 msgstr ""
 
-#: src/settings.c:72 src/settings.c:168
-msgid "No password entered."
-msgstr ""
-
-#: src/settings.c:115
+#: src/settings.c:136
 msgid "Password successfully set."
 msgstr ""
 
-#: src/settings.c:139
+#: src/settings.c:163
 msgid ""
-"If you has not set a root-password(Mysql),\n"
-"then you can empty Old Password."
+" If you haven't set a root password in Mysql,\n"
+"you can leave the Old Password blank."
 msgstr ""
 
-#: src/settings.c:140
+#: src/settings.c:164
 msgid "Old Password:"
 msgstr ""
 
-#: src/settings.c:361
-msgid "Cant open php.ini"
+#: src/settings.c:499
+msgid "Protocol:"
+msgstr ""
+
+#: src/settings.c:504
+msgid "Server:"
+msgstr ""
+
+#: src/settings.c:506
+msgid "Host:"
+msgstr ""
+
+#: src/settings.c:568
+msgid "Please select a Protocol!"
+msgstr ""
+
+#: src/settings.c:574
+msgid "Please enter a Server!"
+msgstr ""
+
+#: src/settings.c:580
+msgid "Please enter a Host!"
+msgstr ""
+
+#: src/settings.c:586
+msgid "Please enter a User!"
+msgstr ""
+
+#: src/vhost.c:171
+msgid "Deactivate"
+msgstr ""
+
+#: src/vhost.c:173 src/vhost.c:400
+msgid "Activate"
+msgstr ""
+
+#: src/vhost.c:246
+msgid "Vhost Edit"
+msgstr ""
+
+#: src/vhost.c:248
+msgid "Vhost ADD"
+msgstr ""
+
+#: src/vhost.c:253
+msgid "Server Name:"
+msgstr ""
+
+#: src/vhost.c:256
+msgid "Document Root:"
+msgstr ""
+
+#: src/vhost.c:259
+msgid "Server Admin:"
+msgstr ""
+
+#: src/vhost.c:262
+msgid "Options"
+msgstr ""
+
+#: src/vhost.c:299
+msgid "Please enter a Servername!"
+msgstr ""
+
+#: src/vhost.c:305
+msgid "Please enter a Documentroot!"
+msgstr ""
+
+#: src/vhost.c:332 src/vhost.c:333
+#, c-format
+msgid "The new Vhost \"%s\" was create!"
+msgstr ""
+
+#: src/vhost.c:344 src/vhost.c:345
+#, c-format
+msgid "The Vhost \"%s\" was changed!"
+msgstr ""
+
+#: src/vhost.c:401
+msgid "Delete"
+msgstr ""
+
+#: src/vhost.c:402
+msgid "Edit"
+msgstr ""
+
+#: src/vhost.c:403
+msgid "Add"
 msgstr ""

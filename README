@@ -6,13 +6,10 @@ You need gtk2, the gtk2 Development files, gksu/gksudo, xampp for linux.
 
 Unzip the archiv.
 
- $ tar -xzvf lampp_control-1.1.tar.gz
+ $ tar -xzvf lampp_control-1.2.tar.gz
 
 Then configure the programm.
  $ ./configure
-
-If you are using Ubuntu configure the program so.
- $ ./configure --enable-ubuntu
 
 Then build the programm.
  $ make

@@ -6,3 +6,4 @@ de.mo: de.po
 install: de.mo
 	$(INSTALL) -m 755 de.mo /opt/lampp/share/locale/de/LC_MESSAGES/lampp_control.mo
 clean:
+	@rm *~  &> /dev/null || true 
